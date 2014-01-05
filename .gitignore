@@ -1,7 +1,4 @@
 src/*.exe
-src/bitcoin
-src/bitcoind
-src/test_bitcoin
 src/build.h
 .*.swp
 *.*~*
@@ -14,7 +11,6 @@ src/build.h
 #compilation and Qt preprocessor part
 *.qm
 Makefile
-bitcoin-qt
 #resources cpp
 qrc_*.cpp
 #qt creator
@@ -23,3 +19,5 @@ qrc_*.cpp
 .DS_Store
 build
 README.md
+cachecoin-qt
+src/cachecoind

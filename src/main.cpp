@@ -42,7 +42,7 @@ static CBigNum bnInitialHashTarget(~uint256(0) >> 20);
 unsigned int nStakeMinAge = 60 * 60 * 24 * 30; // minimum age for coin age
 unsigned int nStakeMaxAge = 60 * 60 * 24 * 90; // stake age of full weight
 unsigned int nStakeTargetSpacing = 1 * 60 * 15; // DIFF: 15-minute block spacing
-int64 nChainStartTime = 1388822641;
+int64 nChainStartTime = 1388949883;
 int nCoinbaseMaturity = 500;
 CBlockIndex* pindexGenesisBlock = NULL;
 int nBestHeight = -1;
@@ -1080,7 +1080,6 @@ unsigned int static GetNextTargetRequired(const CBlockIndex* pindexLast, bool fP
 
     if (pindexLast == NULL)
         return bnTargetLimit.GetCompact(); // genesis block
-
     const CBlockIndex* pindexPrev = GetLastBlockIndex(pindexLast, fProofOfStake);
     if (pindexPrev->pprev == NULL)
         return bnInitialHashTarget.GetCompact(); // first block
@@ -1101,7 +1100,7 @@ unsigned int static GetNextTargetRequired(const CBlockIndex* pindexLast, bool fP
 
     if (bnNew > bnTargetLimit)
         bnNew = bnTargetLimit;
-
+        
     return bnNew.GetCompact();
 }
 
@@ -2082,7 +2081,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot) const
 
         // ppcoin: check transaction timestamp
         if (GetBlockTime() < (int64)tx.nTime)
-            return DoS(50, error("CheckBlock() : block timestamp earlier than transaction timestamp"));
+            return DoS(50, error("CheckBlock() : block timestamp earlier than transaction timestamp %d",tx.nTime));
     }
 
     // Check for duplicate txids. This is caught by ConnectInputs(),
@@ -2529,7 +2528,7 @@ bool LoadBlockIndex(bool fAllowNew)
         //   vMerkleTree: 4a5e1e
 
         // Genesis block
-        const char* pszTimestamp = "This is something really clever";
+        const char* pszTimestamp = "6881415faf3949198f3042ff8590931c502fff2e1fd67641a9a7e155ca15f926";
         CTransaction txNew;
         txNew.nTime = nChainStartTime;
         txNew.vin.resize(1);
@@ -2541,45 +2540,14 @@ bool LoadBlockIndex(bool fAllowNew)
         block.hashPrevBlock = 0;
         block.hashMerkleRoot = block.BuildMerkleTree();
         block.nVersion = 1;
-        block.nTime    = nChainStartTime + 20;
+        block.nTime    = 1388949933;
         block.nBits    = bnProofOfWorkLimit.GetCompact();
-        block.nNonce   = 32982;
+        block.nNonce   = 23391;
 
         //// debug print
         printf("block.GetHash() == %s\n", block.GetHash().ToString().c_str());
         printf("block.hashMerkleRoot == %s\n", block.hashMerkleRoot.ToString().c_str());
-        assert(block.hashMerkleRoot == uint256("0xb6cd9143aa0b7a577dbc281349ba31dfc92f62f1d835dc504e863e386d0aa8f2"));
-        
-        //search for genesis block
-        if (false && block.GetHash() != hashGenesisBlock)
-        {
-			unsigned int max_nonce = 0xffff0000;
-			block_header res_header;
-			uint256 result;
-			unsigned int nHashesDone = 0;
-			unsigned int nNonceFound;
-			CBigNum bnTarget;
-			bnTarget.SetCompact(block.nBits);
-
-			do {
-			nNonceFound = scanhash_scrypt(
-						(block_header *)&block.nVersion,
-						max_nonce,
-						nHashesDone,
-						UBEGIN(result),
-						&res_header,
-						GetNfactor(block.nTime)
-			);
-			printf("trying: %s with nonce %d\n", result.ToString().c_str(), nNonceFound);
-			if (-1 == nNonceFound || result > bnTarget.getuint256()) {
-				block.nTime++;
-				continue;
-			}
-			
-			} while(result > bnTarget.getuint256());
-
-			printf("hashfound: %s with nonce %d\n", result.ToString().c_str(), nNonceFound);
-		}
+        assert(block.hashMerkleRoot == uint256("0x5826d110dcd7bec0c48a4692b22c131aa0bc20cf5ca63494d6d9a86d1c7bdcde"));
         
         block.print();
 
