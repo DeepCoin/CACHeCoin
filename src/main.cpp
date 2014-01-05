@@ -2551,7 +2551,7 @@ bool LoadBlockIndex(bool fAllowNew)
         assert(block.hashMerkleRoot == uint256("0xb6cd9143aa0b7a577dbc281349ba31dfc92f62f1d835dc504e863e386d0aa8f2"));
         
         //search for genesis block
-        if (true && block.GetHash() != hashGenesisBlock)
+        if (false && block.GetHash() != hashGenesisBlock)
         {
 			unsigned int max_nonce = 0xffff0000;
 			block_header res_header;
