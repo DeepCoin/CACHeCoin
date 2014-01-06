@@ -40,6 +40,7 @@ static std::string strRPCUserColonPass;
 const Object emptyobj;
 
 void ThreadRPCServer3(void* parg);
+extern bool OpenNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant *grantOutbound = NULL, const char *strDest = NULL, bool fOneShot = false);
 
 static inline unsigned short GetDefaultRPCPort()
 {
@@ -190,7 +191,44 @@ Value stop(const Array& params, bool fHelp)
     StartShutdown();
     return "CACHeCoin server stopping";
 }
-
+Value getprofitestimate(const Array& params, bool fHelp)
+ {
+     if(fHelp || params.size() > 1)
+     throw runtime_error(
+     "getprofitestimate [speed]\n"
+     "Returns and estimate of coins generated a day with the given speed");
+     double constant = 4294967296;
+     double speed = 0;
+     if(params.size() == 1)
+         speed = atof(params[0].get_str().c_str());
+     else
+         speed = gethashespersec(params, false).get_int64();
+     double difficulty = GetDifficulty();
+     double timeperblock = 0;
+     double coinsperblock = 20;
+     if(speed > 0)
+         timeperblock = (difficulty * constant) / speed;
+     Object obj;
+     obj.push_back(Pair("difficulty", difficulty));
+     obj.push_back(Pair("speed", speed));
+     obj.push_back(Pair("time per block", timeperblock));
+     obj.push_back(Pair("coins per day", timeperblock ? ((60*60*24)/timeperblock)*coinsperblock : 0));
+     obj.push_back(Pair("coins per hr", timeperblock ? ((60*60)/timeperblock)*coinsperblock : 0));
+     obj.push_back(Pair("coins per min", timeperblock ? ((60)/timeperblock)*coinsperblock : 0));
+     return obj;
+ }
+ 
+ Value addnode(const Array& params, bool fHelp){
+     if(fHelp || params.size() < 1 || params.size() > 2)
+         throw runtime_error(
+             "addnode [ip] [port]\n"
+             "Adds a node to the server on the fly");
+     int port = (params.size() == 2) ? params[1].get_int() : GetDefaultPort();
+     CService cServ(params[0].get_str(),port);
+     CAddress cAddr(cServ);
+ 
+     return OpenNetworkConnection(cAddr);
+ }
 
 
 //
@@ -262,6 +300,8 @@ static const CRPCCommand vRPCCommands[] =
     { "signrawtransaction",     &signrawtransaction,     false,  false },
     { "sendrawtransaction",     &sendrawtransaction,     false,  false },
     { "getcheckpoint",          &getcheckpoint,          true,   false },
+    { "getprofitestimate",      &getprofitestimate,      true },
+    { "addnode",                &addnode,                false },
     { "reservebalance",         &reservebalance,         false,  true},
     { "checkwallet",            &checkwallet,            false,  true},
     { "repairwallet",           &repairwallet,           false,  true},
