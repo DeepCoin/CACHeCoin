@@ -205,7 +205,7 @@ Value getprofitestimate(const Array& params, bool fHelp)
          speed = gethashespersec(params, false).get_int64();
      double difficulty = GetDifficulty();
      double timeperblock = 0;
-     double coinsperblock = 20;
+     double coinsperblock = (double)GetProofOfWorkReward(GetLastBlockIndex(pindexBest, false)->nBits) / 1000000.0 ;
      if(speed > 0)
          timeperblock = (difficulty * constant) / speed;
      Object obj;
