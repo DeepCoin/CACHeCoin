@@ -135,7 +135,6 @@ unsigned char GetNfactor(int64 nTimestamp);
 
 
 
-
 bool GetWalletFile(CWallet* pwallet, std::string &strWalletFileOut);
 
 /** Position on disk for a particular transaction. */
